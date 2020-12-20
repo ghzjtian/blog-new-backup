@@ -10,14 +10,6 @@ date: 2019-12-29 17:46:19
 
 <!-- more -->
 
-## 1.参考
-## 2.Mac 安装 Powershell
-## 3.Powershell 使用
-
-
-***
-***
-***
 
 ## 1.参考
 
@@ -25,6 +17,8 @@ date: 2019-12-29 17:46:19
 * 2.[Multiple foreground colors in PowerShell in one command](https://stackoverflow.com/questions/2688547/multiple-foreground-colors-in-powershell-in-one-command)
 * 3.[Run PowerShell 脚本](https://yanxyz.github.io/powershell/scripts/)
 * 4.[Learn PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/learn/ps101/00-introduction?view=powershell-7.1)
+* 5.[How to use parameters in powershell](https://www.red-gate.com/simple-talk/sysadmin/powershell/how-to-use-parameters-in-powershell/)
+* 6.[Friday Fun PowerShell ASCII Art](https://jdhitsolutions.com/blog/powershell/7278/friday-fun-powershell-ascii-art/)
 
 ## 2.Mac 安装 Powershell
 
@@ -86,6 +80,16 @@ customEchoRed("abc")
 function executeCommand($message, $rabbit_mq_command){
 }
 executeCommand "List all exchanges"  "rabbitmqadmin list exchanges"
+```
+
+* 4.获取脚本参数
+
+```
+param ([Parameter(Mandatory)]$command, [int]$portNumber='15672', $ipAddress='localhost')
+
+[Parameter(Mandatory)]: 表示强制要输入，否则后面会提示输入.
+[int]: 转为 int 类型
+='15672': 默认的参数
 ```
 
 
