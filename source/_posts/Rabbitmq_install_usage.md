@@ -12,16 +12,6 @@ date: 2019-12-26 17:46:19
 
 
 
-## [1.参考](#references)
-## [2.Mac 安装过程](#install_guide)
-## [3.使用](#usage)
-## [4.命令行创建 exchange, queue, binding](#declare_exchange)
-
-
-***
-***
-***
-
 ## 1.参考<a name="references"/>
 * 0.[RabbitMQ](https://www.rabbitmq.com/)
 * 1.[Github rabbitmq/rabbitmq-tutorials](https://github.com/rabbitmq/rabbitmq-tutorials)
