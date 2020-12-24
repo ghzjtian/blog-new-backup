@@ -107,10 +107,10 @@ deploy:
   repo: git@github.com:ghzjtian/blog.git
   branch: master
 
-  # Set 'export HEXO_ALGOLIA_INDEXING_KEY=90ea15a5b51baec5c9e03f3368b46592' and 'hexo algolia' command 
+  # Set 'export HEXO_ALGOLIA_INDEXING_KEY={SEARCH-KEY}' and 'hexo algolia' command 
 algolia:
   applicationID: '4BJ6VZJTPW'
-  apiKey: '90ea15a5b51baec5c9e03f3368b46592'
-  adminApiKey: 'b43df2c4870b14f5a5f8acce8368f7f1'
+  apiKey: '{SEARCH-KEY}'
+  adminApiKey: '{ADMIN-API-KEY}'
   indexName: 'blog'
   chunkSize: 5000
