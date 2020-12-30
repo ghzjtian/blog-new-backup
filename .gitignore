@@ -6,4 +6,4 @@ node_modules/
 public/
 .deploy*/
 # Blog's Secure information.
-secure_key.md
+_config.yml

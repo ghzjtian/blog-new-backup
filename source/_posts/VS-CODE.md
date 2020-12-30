@@ -74,10 +74,10 @@ date: 2020-08-11 17:46:19
 * 9.`⇧⌘O` will let you navigate to a specific symbol in a file
 * 10.`⌃G` will let you navigate to a specific line in a file
 * 11.`⌘K Z`全屏模式, 按两次 `Esc` 退出.
-
-
-
-
+* 12.`⌘D` [选择当前光标所在的单词.](https://code.visualstudio.com/docs/editor/codebasics#_multiple-selections-multicursor)
+* 13.[`⌥⌘[` 折叠, `⌥⌘]` 不折叠 代码.](https://code.visualstudio.com/docs/editor/codebasics#_folding)
+* 14.[`F7` 显示下一个 Git 对比不同点](https://code.visualstudio.com/docs/editor/versioncontrol)
+* 15.[`⇧⌘C` 打开外部 Terminal](https://code.visualstudio.com/docs/editor/integrated-terminal)
 
 
 

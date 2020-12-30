@@ -90,11 +90,22 @@ Eshell V10.6.1  (abort with ^G)
 * 2.浏览器访问 `http://{hostname}:15672/cli/rabbitmqadmin` 去得到 `rabbitmqadmin` 工具
 * 3.
 
+#### 3.Windows 开放端口供其他电脑访问 RabbitMQ
+
+* 1.开通 `5672` 端口(AMQP), `15672` 端口(WEB Admin),
+
+```
+netsh advfirewall firewall add rule name="RabbitMQ Port 5672" dir=in action=allow protocol=TCP localport=5672
+
+netsh advfirewall firewall add rule name="RabbitMQ Port 15672" dir=in action=allow protocol=TCP localport=15672
+```
+
 ## 4.命令行创建 exchange, queue, binding<a name="declare_exchange"/>
 
 > 1.有 命令行 和 rest api 两种方法.我们这里讲解 命令行的用法.
 > 
 > 2.如果是 Windows 系统的话，需要安装 python , 而且要在命令的前面添加 `python rabbitmqadmin ...` 这样， rabbitmqadmin 从 `localhost:15672` 上下载，然后放置到当前运行的目录下面.
+
 
 #### 1.参考
 * 1.[How to create an exchange using rabbitmqctl](https://stackoverflow.com/questions/45952026/how-to-create-an-exchange-using-rabbitmqctl)
@@ -205,7 +216,7 @@ rabbitmqctl add_user glb_user xxx
 // 设置权限
 rabbitmqctl set_permissions -p / glb_user ".*" ".*" ".*"
 // 设置标签
-rabbitmqctl set_user_tags tian administrator
+rabbitmqctl set_user_tags glb_user administrator
 // 查看
 rabbitmqctl list_users
 ```
