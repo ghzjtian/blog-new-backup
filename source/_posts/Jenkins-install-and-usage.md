@@ -9,30 +9,12 @@ date: 2020-06-13 17:46:19
 
 <!-- more -->
 
-
-## 1.参考
-## 2.在 Mac mini 上安装 Jenkins
-## 3.设置 Jenkins 中 Shell 的 PATH
-## 4.源代码管理
-## 5.触发机制 
-## 6.Build 的脚本
-## 7.常用的插件
-## 8.过程及结果通知
-## 9.用户管理
-## 10.自动打包 `Xamarin.Android` 项目
-## 11.打包 `Xamarin.iOS` 项目
- 
-
-***
-***
-***
-
-
 ## 1.参考
 * 1.[Jenkins](https://www.jenkins.io/)
 * 2.[Using Jenkins with Xamarin](https://docs.microsoft.com/en-us/xamarin/tools/ci/jenkins-walkthrough)
 * 3.[Save Jenkins configuration](https://stackoverflow.com/questions/54192905/how-to-save-jenkins-configuration)
 * 4.[Login Credentials Brute Force](https://issues.jenkins-ci.org/browse/JENKINS-30107)
+* 5.[Jenkins Github](https://github.com/jenkinsci/jenkins)
 
 ## 2.在 Mac mini 上安装 Jenkins
 #### 1.下载安装
@@ -430,6 +412,47 @@ msbuild /p:Configuration="APP.iOS - Develop" /p:Platform="iPhone" /p:IpaPackageD
 
 
 /Users/glb_gz/Documents/Xamarin_Workplace/ggmowerapp/MowerGG/MowerGG.iOS/Globe.IoT.App.GreenGuide.iOS.csproj
+
+
+## 12.在 `Windows` 上安装
+
+### 1.下载
+* 1.下载 [jre8](https://www.oracle.com/java/technologies/javase-jre8-downloads.html)
+* 2.下载 [jenkins](https://www.jenkins.io/download/thank-you-downloading-windows-installer-stable/)
+
+### 2.安装
+* 1.按提示安装
+
+### 3.配置
+* 1.配置 `git.exe` 路径.
+* 2.配置 `ssh` private key.
+
+### 4.作为 Node 节点服务器
+#### 1.参考
+* 1.[Installing Jenkins as a Windows service](https://wiki.jenkins.io/display/JENKINS/Installing+Jenkins+as+a+Windows+service)
+* 2.[Jenkins Master and Slave Architecture – A Complete Guide](https://www.edureka.co/blog/jenkins-master-and-slave-architecture-a-complete-guide/)
+* 3.[Jenkins Master Slave Configuration](https://www.studytonight.com/jenkins/jenkins-master-slave-configuration)
+* 4.[Youtube-Jenkins Master/Slaver](https://www.youtube.com/watch?v=rr-R955N4nM)
+
+
+#### 2.安装
+* 1.在 Slave 机器上按照提示，安装 Jenkins.
+
+* 2.在 Master 机器的 Jenjins 上添加 Node, 然后如下图的配置
+
+![](http://pic.pgyjz.cn/blog/Angular/Xnip2021-01-14_12-11-18.png)
+
+* 3.在 Slave 机器上用浏览器登录 Master 的 Jenkins, 下载 `slave-agent.jnlp` 文件，然后双击运行.
+
+* 4.现在在 Master Jenkins 上可以看到 Slave Jenkins 的相关信息.
+
+
+
+
+
+
+
+
 
 
 
