@@ -436,17 +436,25 @@ msbuild /p:Configuration="APP.iOS - Develop" /p:Platform="iPhone" /p:IpaPackageD
 
 
 #### 2.安装
-* 1.在 Slave 机器上按照提示，安装 Jenkins.
+##### 1.在 Slave 机器上按照提示，安装 Jenkins.
 
-* 2.在 Master 机器的 Jenjins 上添加 Node, 然后如下图的配置
+##### 2.在 Master 机器的 Jenjins 上添加 Node, 然后如下图的配置
+
+* 1.以后每次修改后都需要重新连接 Slave
+* 2.添加 Slave 的 Git 执行路径到 配置 `Tool Locations` 中. 
+* 3.`Remote root directory` 填写 Slave 保存的项目源码路径.
 
 ![](http://pic.pgyjz.cn/blog/Angular/Xnip2021-01-14_12-11-18.png)
 
-* 3.在 Slave 机器上用浏览器登录 Master 的 Jenkins, 下载 `slave-agent.jnlp` 文件，然后双击运行.
 
-* 4.现在在 Master Jenkins 上可以看到 Slave Jenkins 的相关信息.
+##### 3.在 Slave 机器上用浏览器登录 Master 的 Jenkins, 下载 `slave-agent.jnlp` 文件，然后双击运行.
+
+##### 4.现在在 Master Jenkins 上可以看到 Slave Jenkins 的相关信息.
 
 
+#### 3.项目配置
+* 1.Git 需要新创建一个 `Credentials` , 如果用 ssh 验证，需要 Slave 机器的 `ssh private key`.
+* 2.项目的 `General/Restrict where this project can be run` 填写 `Slave` 的 `Label`
 
 
 
