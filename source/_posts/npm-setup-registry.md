@@ -72,3 +72,18 @@ prefix = "/usr/local"
 
 #### 2.使用淘宝镜像的后遗症及解决方法: [npm ERR! Unexpected end of JSON input while parsing near '](https://github.com/vuejs-templates/webpack/issues/990#issuecomment-343736884)
 
+## 4.配置
+* 1.npm 全局安装包的路径: `/usr/local/lib/node_modules`
+* 2.显示全局安装的包: `npm list -g --depth 0`
+
+```
+~ $ npm list -g --depth 0
+/Users/glb/.nvm/versions/node/v15.2.1/lib
+├── archiver@5.2.0
+├── hexo-cli@4.2.0
+├── javascripting@2.7.3
+├── npm@7.0.8
+├── stream-adventure@4.3.0
+├── ts-node@9.1.1
+└── typescript@4.1.2
+```
