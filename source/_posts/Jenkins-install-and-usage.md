@@ -436,9 +436,8 @@ msbuild /p:Configuration="APP.iOS - Develop" /p:Platform="iPhone" /p:IpaPackageD
 
 
 #### 2.安装
-##### 1.在 Slave 机器上按照提示，安装 Jenkins.
 
-##### 2.在 Master 机器的 Jenjins 上添加 Node, 然后如下图的配置
+##### 1.在 Master 机器的 Jenjins 上添加 Node, 然后如下图的配置
 
 * 1.以后每次修改后都需要重新连接 Slave
 * 2.添加 Slave 的 Git 执行路径到 配置 `Tool Locations` 中. 
@@ -447,9 +446,20 @@ msbuild /p:Configuration="APP.iOS - Develop" /p:Platform="iPhone" /p:IpaPackageD
 ![](http://pic.pgyjz.cn/blog/Angular/Xnip2021-01-14_12-11-18.png)
 
 
-##### 3.在 Slave 机器上用浏览器登录 Master 的 Jenkins, 下载 `slave-agent.jnlp` 文件，然后双击运行.
+##### 2.在 Slave 机器上用浏览器登录 Master 的 Jenkins, 下载 `agent.jar`文件
 
-##### 4.现在在 Master Jenkins 上可以看到 Slave Jenkins 的相关信息.
+##### 3.编写 bat 脚本,内容如下，然后保存为 `Jenkins.bat`
+
+```
+java -jar D:\Jenkins\agent.jar -jnlpUrl http://10.100.1.172:8081/computer/GZ-Developer-Computer(Slave1)/slave-agent.jnlp -secret 05ddb1dcdfd108fe30f40e194d13c4755af31e65f969b84ed959b3780bbf2310 -workDir "D:\Jenkins\Slave"
+```
+
+##### 4.设置脚本开机自动运行
+* 1.打开运行，然后输入 `shell:common startup`， 就会打开 `系统启动文件夹`
+* 2.把脚本 `Jenkins.bat` 放到 `系统启动文件夹` 下
+* 3.但发现以后要登录计算机，才会触发脚本自动运行!!!
+
+##### 5.现在在 Master Jenkins 上可以看到 Slave Jenkins 的相关信息.
 
 
 #### 3.项目配置
