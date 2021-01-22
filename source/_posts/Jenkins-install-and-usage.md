@@ -81,6 +81,7 @@ executable-war	/usr/local/Cellar/jenkins-lts/2.204.1/libexec/jenkins.war
 * 3.停止 Jenkins: `brew services stop jenkins-lts`
 * 4.用新下载的 `jenkins.war` 替换 `/usr/local/Cellar/jenkins-lts/2.204.1/libexec/jenkins.war`
 * 5.重启 Jenkins: `brew services start jenkins-lts`
+* 6.Jenkins 的环境变量可以在 `http://localhost:8080/env-vars.html/` 看到.
 
 ## 3.设置 Jenkins 中 Shell 的 PATH
 
@@ -163,6 +164,9 @@ echo $PATH
 
 #### 6.Role-based Authorization
 * 1.角色权限管理
+
+#### 7.Pipeline Utility Steps
+* 1.Jenkins 常用的 Pipeline 工具.
 
 ## 8.过程及结果通知
 
@@ -467,10 +471,168 @@ java -jar D:\Jenkins\agent.jar -jnlpUrl http://10.100.1.172:8081/computer/GZ-Dev
 * 2.项目的 `General/Restrict where this project can be run` 填写 `Slave` 的 `Label`
 
 
+### 5.辅助工具
+* 1.[Jenkins Pipeline Linter Connector(VS code plugin)](https://marketplace.visualstudio.com/items?itemName=janjoerke.jenkins-pipeline-linter-connector)
 
 
+## 13.Multi Pipe line
+
+### 1.参考
+* 1.[Jenkins shared library: tutorial with examples](https://tomd.xyz/jenkins-shared-library/)
+
+### 2.内部库
+
+> 因为 Jenkins 认为项目的 Jenkinsfile 脚本是不安全的，并且一些常用的代码共用的原则，所以需要内部库的支持.
+
+#### 1.Jenkins 内部的 workflowLibs 库
+* 1.Git remote 为: `origin	ssh://tian@localhost:22222/workflowLibs.git (fetch)`.
+
+#### 2.Git 库
+* 1.可以放在 Gitlab 或 Github
+* 2.在 `Global Pipeline Libraries ` 配置
+	* 1.Name to `pipeline-library`
+	* 2.Default version to `master`
+	* 3.Select `Modern SCM`/`Git` and input your `Project Repository` and select `Credentials`
+	* 4.Save, and each project import this library , this library will auto download to workspace.
+
+### 3.项目 Jenkinsfile 文件的配置及使用
+
+#### 1.Import the library
+* 1.Example: `@Library('jenkins-build-script')_`
+
+#### 2.Usage
+* 1.Use `executeCommand xxx` or `getDotnetProjectVersion(xxx)` to execute the command in vars.
+* 2.Or use `import com.globe.IotXmlParser` to import the class and then execute its command.
 
 
+#### 3.`Jenkinsfile` Example
 
+```
+@Library('jenkins-build-script')_
+
+// import com.globe.IotXmlParser
+
+pipeline {
+
+    environment {
+        BATTERY_INFO_PATH = "Worker/path"
+        
+
+    }
+
+    // Parameters
+    parameters {
+        booleanParam(defaultValue: false, description: 'Build Battery Info Worker?', name: 'BatteryInfo')
+        
+    }
+
+    agent any
+
+    stages {
+
+        stage('Pre-Build') {
+            steps {
+                echo "Remove all not in git files"
+                executeCommand "git clean -xdf"
+
+                // echo "Is Build Battery Info?: ${params.BatteryInfo}"
+                // echo "Is Build Log Service?: ${params.LogService}"
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Current workspace is ${env.WORKSPACE}"
+                
+                script {
+                    // Projects path
+                    def projectsPath = []
+
+                    // Only build the selected projects.
+                    if (params.BatteryInfo) {
+                        projectsPath.add(BATTERY_INFO_PATH)
+                    }
+                    
+
+                    // Process each project
+                    projectsPath.each {
+                        dir(it) {
+                            executeCommand "dotnet restore"
+
+                            String[] pathItems = it.split('/')
+                            def projectName = pathItems.last()
+                            def outputPath = isUnix()? "./bin/${projectName}": ".\\bin\\${projectName}"
+
+                            if (isUnix()) {
+                                executeCommand "dotnet build --configuration Release --output $outputPath  --runtime win-x64 --framework netcoreapp3.1"
+                            } else {
+                                executeCommand "dotnet public --configuration Release --output $outputPath  --runtime win-x64 --self-contained --framework netcoreapp3.1"
+                            }
+
+                            // Get version number
+                            def versionNumber = getDotnetProjectVersion("${pwd()}/${projectName}.csproj");
+
+                            // Zip output
+                            def zipFileName = "${projectName}_v${versionNumber}.zip"
+                            zip zipFile: "${zipFileName}", archive: true, dir: "bin/", overwrite: false
+
+                            archiveArtifacts artifacts: "${zipFileName}", fingerprint: true
+
+                            executeCommand "mkdir -p ${env.WORKSPACE}/Publishs && cp ${zipFileName} ${env.WORKSPACE}/Publishs"
+                        }
+
+                    }
+
+                }
+
+            }
+        }
+
+        stage('After-Build') {
+            steps {
+                echo "remove only ignored files"
+                executeCommand "git clean -Xdf"
+            }
+        }
+    }
+
+     post {
+        success {
+            emailext body: '''
+             Hi All,
+                <br/>
+                <br/>
+                ${PROJECT_NAME} - Build # ${BUILD_NUMBER} - ${BUILD_STATUS}.<br/>
+                <br/>
+                 Click follow link <a href="${BUILD_URL}/console">${BUILD_URL}/console</a> to view full <strong>console output</strong> results.
+                <br/>
+                <br/>
+
+                You can click follow link <a href="$JOB_URL/ws/Publish">$JOB_URL/ws/Publish/</a> to download each <strong>Workers's installation</strong> files.
+
+                If you cannot connect to the build server, check the attached logs.<br/>
+                <br/>
+                --<br/>
+                 Following is the last 100 lines of the log.<br/>
+                    <br/>
+                    --LOG-BEGIN--<br/>
+                    <pre style='line-height: 22px; display: block; color: #333; font-family: Monaco,Menlo,Consolas,"Courier New",monospace; padding: 10.5px; margin: 0 0 11px; font-size: 13px; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; background-color: #f5f5f5; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;'>
+                    ${BUILD_LOG, maxLines=100, escapeHtml=true}
+                    </pre>
+                    --LOG-END--
+                    <br/>
+                    <br/>
+
+                From: Mac mini's Jenkins server <${BUILD_TIMESTAMP}>
+
+            ''' ,
+                subject: '''${DEFAULT_SUBJECT}''',
+                to: 'jingtian.zeng@globetools.com'
+        }
+
+    }
+}
+
+```
 
 
