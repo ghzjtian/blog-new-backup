@@ -166,10 +166,10 @@ echo $PATH
 #### 6.Role-based Authorization
 * 1.角色权限管理
 
-#### 7.Pipeline Utility Steps
+#### 7.[Pipeline Utility Steps](https://www.jenkins.io/doc/pipeline/steps/pipeline-utility-steps/)
 * 1.Jenkins 常用的 Pipeline 工具.
 
-#### 8.[Pipeline: Basic Steps](https://plugins.jenkins.io/workflow-basic-steps/)
+#### 8.[Pipeline: Basic Steps](https://www.jenkins.io/doc/pipeline/steps/workflow-basic-steps/#readfile-read-file-from-workspace)
 * 1.Jenkins 常用的 Pipeline 命令.
 
 ## 8.过程及结果通知
@@ -512,6 +512,142 @@ java -jar D:\Jenkins\agent.jar -jnlpUrl http://10.100.1.172:8081/computer/GZ-Dev
 #### 3.`Jenkinsfile` Example
 
 ```
+@Library('pipeline-library')_
+
+// Import class from shared library.
+// import com.globe.IotXmlParser
+
+pipeline {
+
+    environment {
+        BATTERY_INFO_PATH = "parentDirectory/childDirectory"
+        
+    }
+
+    // Parameters
+    parameters {
+        booleanParam(defaultValue: false, description: 'Build Worker?', name: 'BatteryInfo')
+        
+    }
+
+    agent any
+    // agent {
+    //     node { label 'Slave1' }
+    // }
+
+    stages {
+
+        stage('Pre-Build') {
+            steps {
+                echo "Remove all not in git files"
+                executeCommand "git clean -xdf"
+
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Current workspace is ${env.WORKSPACE}"
+
+                script {
+                    def projectsPath = []
+
+                    // Only build the selected projects.
+                    if (params.BatteryInfo) {
+                        projectsPath.add(BATTERY_INFO_PATH)
+                    }
+                    
+                    // Process each project
+                    projectsPath.each {
+                        dir(it) {
+                            try{
+
+                                executeCommand "dotnet restore"
+
+                                String[] pathItems = it.split('/')
+                                def projectName = pathItems.last()
+                                def outputPath = isUnix()? "./bin/${projectName}": ".\\bin\\${projectName}"
+
+                                if (isUnix()) {
+                                    executeCommand "dotnet build --configuration Release --output $outputPath  --runtime win-x64 --framework netcoreapp3.1"
+                                } else {
+                                    executeCommand "dotnet publish --configuration Release --output $outputPath  --runtime win-x64 --self-contained --framework netcoreapp3.1"
+                                }
+
+                                // Get file content
+                                //def fileContent = readFile file:"${projectName}.csproj" , encoding: "UTF-8"
+                                def fileContent = readFile file:"${projectName}.csproj"
+                                // Remove BOM encodings, [Byte order mark](https://en.wikipedia.org/wiki/Byte_order_mark)
+                                fileContent = fileContent.replaceAll("\uEFBBBF", "").replaceAll("\uFEFF", "");
+                                def versionNumber = getDotnetProjectVersionWithContent(fileContent)
+
+                                // Zip output, not work at windows now.
+                                def zipFileName = "IDDS_${projectName}_v${versionNumber}.zip"
+                                zip zipFile: "${zipFileName}", archive: true, dir: "bin/", overwrite: false
+
+                                archiveArtifacts artifacts: "${zipFileName}", fingerprint: true
+
+                                executeCommand "mkdir -p ${env.WORKSPACE}/Publishs && cp ${zipFileName} ${env.WORKSPACE}/Publishs"
+
+                            } catch (Exception ex) {
+                                def errorMsg = ex.toString()
+                                echo "Something wrong: ${errorMsg}"
+                                 throw new Exception(errorMsg)
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
+        }
+
+        stage('After-Build') {
+            steps {
+                echo "remove only ignored files"
+                executeCommand "git clean -Xdf"
+            }
+        }
+    }
+
+     post {
+        always {
+
+            script {
+
+                def emailBody = """
+                    Hi All,
+                        <br/>
+                        <br/>
+
+                        ${currentBuild.fullProjectName} - Build # ${BUILD_NUMBER} - ${currentBuild.currentResult}.<br/>
+                        <br/>
+                        <br/>
+
+                        Click follow link <a href="${BUILD_URL}/console">${BUILD_URL}/console</a> to view full <strong>console output</strong> results.
+                        <br/>
+                        <br/>
+                """
+                
+                def successText = currentBuild.resultIsBetterOrEqualTo('SUCCESS')? """ 
+                    You can click follow link <a href="${JOB_URL}">${JOB_URL}</a> to download Last successful artifacts.
+                    """ : ""
+
+                def builder = """
+                    <br/>
+                    <br/> 
+                    From: Mac mini's Jenkins server 
+                    """
+
+                emailext body: emailBody + successText + builder ,
+                    subject: "[${currentBuild.currentResult}] - ${currentBuild.fullProjectName} - Jenkins Build # ${BUILD_NUMBER} (${BUILD_ID})<DO NOT REPLY>",
+                    to: 'aa@bb.cc'
+
+            }
+        }
+    }
+}
 
 
 ```
