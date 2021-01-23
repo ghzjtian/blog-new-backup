@@ -81,7 +81,7 @@ executable-war	/usr/local/Cellar/jenkins-lts/2.204.1/libexec/jenkins.war
 * 3.停止 Jenkins: `brew services stop jenkins-lts`
 * 4.用新下载的 `jenkins.war` 替换 `/usr/local/Cellar/jenkins-lts/2.204.1/libexec/jenkins.war`
 * 5.重启 Jenkins: `brew services start jenkins-lts`
-* 6.Jenkins 的环境变量可以在 `http://localhost:8080/env-vars.html/` 看到.
+* 6.Jenkins 的环境变量可以在 `http://localhost:8080/env-vars.html/` 看到, 也可以在项目的 `http://localhost:8080/view/Pipeline/job/idds-build-test2/job/test/pipeline-syntax/globals` 看到 Pipeline 的语法.
 
 ## 3.设置 Jenkins 中 Shell 的 PATH
 
@@ -156,8 +156,9 @@ echo $PATH
 #### 3.[Workspace Cleanup](https://plugins.jenkins.io/ws-cleanup/)
 * 1.在每次 Build 前就 Clean 整个项目.
 
-#### 4.Environment Injector
-* 1.安全地插入 password 等等敏感的数据
+#### 4.[Environment Injector](https://plugins.jenkins.io/envinject/)
+* 1.插入 password 等等敏感的数据, 提供 项目 build 变量信息供项目访问.
+* 2.但不支持 `Pipeline` 语法.
 
 #### 5.Delivery Pipeline
 * 1.可视化 任务管道传递
@@ -167,6 +168,9 @@ echo $PATH
 
 #### 7.Pipeline Utility Steps
 * 1.Jenkins 常用的 Pipeline 工具.
+
+#### 8.[Pipeline: Basic Steps](https://plugins.jenkins.io/workflow-basic-steps/)
+* 1.Jenkins 常用的 Pipeline 命令.
 
 ## 8.过程及结果通知
 
@@ -508,131 +512,20 @@ java -jar D:\Jenkins\agent.jar -jnlpUrl http://10.100.1.172:8081/computer/GZ-Dev
 #### 3.`Jenkinsfile` Example
 
 ```
-@Library('jenkins-build-script')_
 
-// import com.globe.IotXmlParser
-
-pipeline {
-
-    environment {
-        BATTERY_INFO_PATH = "Worker/path"
-        
-
-    }
-
-    // Parameters
-    parameters {
-        booleanParam(defaultValue: false, description: 'Build Battery Info Worker?', name: 'BatteryInfo')
-        
-    }
-
-    agent any
-
-    stages {
-
-        stage('Pre-Build') {
-            steps {
-                echo "Remove all not in git files"
-                executeCommand "git clean -xdf"
-
-                // echo "Is Build Battery Info?: ${params.BatteryInfo}"
-                // echo "Is Build Log Service?: ${params.LogService}"
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo "Current workspace is ${env.WORKSPACE}"
-                
-                script {
-                    // Projects path
-                    def projectsPath = []
-
-                    // Only build the selected projects.
-                    if (params.BatteryInfo) {
-                        projectsPath.add(BATTERY_INFO_PATH)
-                    }
-                    
-
-                    // Process each project
-                    projectsPath.each {
-                        dir(it) {
-                            executeCommand "dotnet restore"
-
-                            String[] pathItems = it.split('/')
-                            def projectName = pathItems.last()
-                            def outputPath = isUnix()? "./bin/${projectName}": ".\\bin\\${projectName}"
-
-                            if (isUnix()) {
-                                executeCommand "dotnet build --configuration Release --output $outputPath  --runtime win-x64 --framework netcoreapp3.1"
-                            } else {
-                                executeCommand "dotnet public --configuration Release --output $outputPath  --runtime win-x64 --self-contained --framework netcoreapp3.1"
-                            }
-
-                            // Get version number
-                            def versionNumber = getDotnetProjectVersion("${pwd()}/${projectName}.csproj");
-
-                            // Zip output
-                            def zipFileName = "${projectName}_v${versionNumber}.zip"
-                            zip zipFile: "${zipFileName}", archive: true, dir: "bin/", overwrite: false
-
-                            archiveArtifacts artifacts: "${zipFileName}", fingerprint: true
-
-                            executeCommand "mkdir -p ${env.WORKSPACE}/Publishs && cp ${zipFileName} ${env.WORKSPACE}/Publishs"
-                        }
-
-                    }
-
-                }
-
-            }
-        }
-
-        stage('After-Build') {
-            steps {
-                echo "remove only ignored files"
-                executeCommand "git clean -Xdf"
-            }
-        }
-    }
-
-     post {
-        success {
-            emailext body: '''
-             Hi All,
-                <br/>
-                <br/>
-                ${PROJECT_NAME} - Build # ${BUILD_NUMBER} - ${BUILD_STATUS}.<br/>
-                <br/>
-                 Click follow link <a href="${BUILD_URL}/console">${BUILD_URL}/console</a> to view full <strong>console output</strong> results.
-                <br/>
-                <br/>
-
-                You can click follow link <a href="$JOB_URL/ws/Publish">$JOB_URL/ws/Publish/</a> to download each <strong>Workers's installation</strong> files.
-
-                If you cannot connect to the build server, check the attached logs.<br/>
-                <br/>
-                --<br/>
-                 Following is the last 100 lines of the log.<br/>
-                    <br/>
-                    --LOG-BEGIN--<br/>
-                    <pre style='line-height: 22px; display: block; color: #333; font-family: Monaco,Menlo,Consolas,"Courier New",monospace; padding: 10.5px; margin: 0 0 11px; font-size: 13px; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; background-color: #f5f5f5; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;'>
-                    ${BUILD_LOG, maxLines=100, escapeHtml=true}
-                    </pre>
-                    --LOG-END--
-                    <br/>
-                    <br/>
-
-                From: Mac mini's Jenkins server <${BUILD_TIMESTAMP}>
-
-            ''' ,
-                subject: '''${DEFAULT_SUBJECT}''',
-                to: 'jingtian.zeng@globetools.com'
-        }
-
-    }
-}
 
 ```
+
+### 4.Master -> Slave 架构上使用 Pipeline
+#### 1.有 `shared library` 时
+* 1.`library` 会下载到 Master
+* 2.`Project code` 会下载到 Slave
+* 3.如果需要 `shared library` 读取文件, 不能通过传递文件名让 `shared library` 读取，这样会找不到, 应该用 插件 `Pipeline: Basic Steps ` 的 `readFile` 方法去读取文件内容，再传递到 `shared library` 去处理,但是要注意处理前先去除文件的 `字节顺序标记（英语：byte-order mark，BOM）` 否则会可能出错, 如 Groovy 的 `XmlParser().parseText` 会出现 `org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.` 错误.
+* 4.用 `Xcode` 打开文件查看 HEX 的方法: [What's a good hex editor/viewer for the Mac?](https://stackoverflow.com/a/10237422/5237440)
+
+
+
+
+
 
 
