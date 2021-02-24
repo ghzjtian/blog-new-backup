@@ -15,6 +15,7 @@ date: 2020-06-13 17:46:19
 * 3.[Save Jenkins configuration](https://stackoverflow.com/questions/54192905/how-to-save-jenkins-configuration)
 * 4.[Login Credentials Brute Force](https://issues.jenkins-ci.org/browse/JENKINS-30107)
 * 5.[Jenkins Github](https://github.com/jenkinsci/jenkins)
+* 6.[Pipeline](https://www.jenkins.io/doc/book/pipeline/)
 
 ## 2.在 Mac mini 上安装 Jenkins
 #### 1.下载安装
@@ -92,7 +93,7 @@ executable-war	/usr/local/Cellar/jenkins-lts/2.204.1/libexec/jenkins.war
 
 ##### 2.操作
 
-* 1.编辑 Jenkins `/usr/local/Cellar/jenkins-lts/2.204.1/homebrew.mxcl.jenkins-lts.plist` 文件，添加 Mac 的 $PATH 到 Jenkins 中.
+* 1.编辑 Jenkins `/usr/local/Cellar/jenkins-lts/2.204.1/homebrew.mxcl.jenkins-lts.plist` 文件，1)修改 `<string>--httpListenAddress=127.0.0.1</string>` 为 `<string>--httpListenAddress=0.0.0.0</string>`, 以供其它的电脑访问. 2)添加 Mac 的 $PATH 到 Jenkins 中.
 
 ```
 // 输出 PATH
@@ -469,6 +470,11 @@ java -jar D:\Jenkins\agent.jar -jnlpUrl http://10.100.1.172:8081/computer/GZ-Dev
 
 ##### 5.现在在 Master Jenkins 上可以看到 Slave Jenkins 的相关信息.
 
+##### 6.安装依赖
+* 1.jre(启动 `agent.jar` 去与 Master 通讯.)
+* 2.Git.(下载项目源码)
+	* 下载完 Git 后，用 `ssh-keygen -t rsa -b 2048 -C "email@example.com"` 生成 `rsa ssh key`
+* 3.dotnet.(要 Build `dotnet core` 的项目)
 
 #### 3.项目配置
 * 1.Git 需要新创建一个 `Credentials` , 如果用 ssh 验证，需要 Slave 机器的 `ssh private key`.
@@ -660,7 +666,60 @@ pipeline {
 * 4.用 `Xcode` 打开文件查看 HEX 的方法: [What's a good hex editor/viewer for the Mac?](https://stackoverflow.com/a/10237422/5237440)
 
 
+## 14.Build Angular 项目
 
+### 1.参考
+* 1.[Groovy Regular Expressions - The Definitive Guide (Part 1)](https://e.printstacktrace.blog/groovy-regular-expressions-the-definitive-guide/)
+* 2.[How to Create an Angular Pipeline With Jenkins](https://medium.com/better-programming/how-to-create-an-angular-pipeline-with-jenkins-8040f1a0c0ee)
+* 3.[Jenkins Pipeline to deploy Angular App to AppEngine GCP](https://medium.com/@sportans300/jenkins-pipeline-to-deploy-angular-app-to-appengine-gcp-1f58160e2779)
+
+
+### 2.安装插件
+* 1.Jenkins 安装 `NodeJs` 插件
+
+
+### 3.配置 NodeJS
+* 1.在 `Jenkins` -> `Global Tool Configuration` 中配置 NodeJS 的信息, 如下图
+
+![](http://pic.pgyjz.cn/blog/Angular/Jenkins-set-NodeJS.png) 
+
+* 2.
+
+
+## 15.集成 Nexus
+
+### 1.参考
+* 1.[Publish artifacts to nexus](https://medium.com/appfleet/publishing-artifacts-to-sonatype-nexus-using-jenkins-pipelines-db8c1412dc7)
+* 2.[Install Using Jenkins Plugin Manager](https://help.sonatype.com/integrations/nexus-and-continuous-integration/nexus-platform-plugin-for-jenkins#NexusPlatformPluginforJenkins-InstallUsingJenkinsPluginManager)
+
+### 2.步骤
+* 1.安装 `nexus platform` 插件.
+
+
+
+## 16.集成 Gitlab
+### 1.参考
+* 1.[Jenkins CI service](https://docs.gitlab.com/ee/integration/jenkins.html)
+
+
+### 2.步骤
+#### 1.Gitlab
+* 1.创建用户
+* 2.开启用户的 access token
+* 3.在 `User Settings` -> `Access Tokens` 设置用户个人的访问 Access Token, Scopes 选取 `api` 即可(用于 Jenkins 将 `build status` 上传到 `Gitlab` ).
+* 4.如果 `Jenkins` 与 `Gitlab` 一样部署在内网, 需要在用 Admin 账号在 `Admin Area` -> `Settings` -> `Network` 中设置 `Allow requests to the local network from web hooks and services`
+* 5.在项目的 `Settings` -> `Webhooks` 中填写触发 Jenkins build 的参数.如
+
+```
+URL: http://10.100.1.181:8080/project/ABC
+Secret Token: assdfsf2984ndjfsjf
+Trigger: Push events
+```
+
+#### 2.Jenkins
+* 1.下载插件 `gitlab-plugin` from Jenkins , or manual from [updates.jenkins-ci.org](http://updates.jenkins-ci.org/download/plugins/gitlab-plugin/), And then go to: Manager Jenkins > Plugin Manager > Advanced tab, Scroll down to the upload plugin section, click choose file to select your downloaded hpi file and press upload. After that restart Jenkins.
+* 2.在 `Manage Jenkins` -> `Configuration System` -> `Gitlab` 中填写相关信息.
+* 3.
 
 
 
