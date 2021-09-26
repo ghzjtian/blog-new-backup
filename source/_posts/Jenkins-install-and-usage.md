@@ -476,6 +476,21 @@ java -jar D:\Jenkins\agent.jar -jnlpUrl http://10.100.1.172:8081/computer/GZ-Dev
 	* 下载完 Git 后，用 `ssh-keygen -t rsa -b 2048 -C "email@example.com"` 生成 `rsa ssh key`
 * 3.dotnet.(要 Build `dotnet core` 的项目)
 
+#### 2.安装(作为 Windows service 方式)
+* 下载 [NSSM](http://nssm.cc/download)
+* 以管理员身份运行以下命令：`nssm install jenkins-agent` 执行完毕后会弹出对话框
+* 字段填写,如: 
+
+```
+Application/Path: `C:\Program Files\Java\jre1.8.0_271\bin\java.exe`
+Application/Startup directory(agent.jar 文件所在的目录): `D:\Jenkins`
+Application/Arguments(执行的脚本参数信息): `-jar D:\Jenkins\agent.jar -jnlpUrl http://10.100.1.217:8081/computer/Developer-Windows/jenkins-agent.jnlp -secret c511e3e556d5366af901e8927b5dcf0974341b2e1671a73efd82e6b0abc37ac6 -workDir "D:\Jenkins\Dell-Jenkins-Slave"`
+Details/Display name: `Jenkins Agent`
+
+```
+
+* 点击 `Install service` 按钮.
+
 #### 3.项目配置
 * 1.Git 需要新创建一个 `Credentials` , 如果用 ssh 验证，需要 Slave 机器的 `ssh private key`.
 * 2.项目的 `General/Restrict where this project can be run` 填写 `Slave` 的 `Label`
