@@ -13,6 +13,8 @@ date: 2019-09-05 17:46:19
 ## [2.过程](#steps)
 ## [3.错误处理](#error_process)
 
+## [4.第三方管理包]
+
 ***
 ***
 ***
@@ -87,3 +89,15 @@ prefix = "/usr/local"
 ├── ts-node@9.1.1
 └── typescript@4.1.2
 ```
+
+
+## 4.第三方管理包
+### 1.Nvm
+* [nvm](https://github.com/nvm-sh/nvm)
+* [Install Node.js Locally with Node Version Manager (nvm)](https://heynode.com/tutorial/install-nodejs-locally-nvm/)
+
+### 2.Nrm
+* [nrm](https://www.npmjs.com/package/nrm)
+
+
+

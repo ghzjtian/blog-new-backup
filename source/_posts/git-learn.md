@@ -9,13 +9,7 @@ date: 2020-04-01 17:46:19
 
 <!-- more -->
 
-## 0.参考
-## 1.Git stash
 
-
-***
-***
-***
 
 ## 0.参考
 * 1.[Git scm](https://git-scm.com/)
@@ -140,7 +134,36 @@ git tag -a test/frontend/v1.5.3.93 -m "Update front-end version to v1.5.3.93"
 
 
 
+## 4.设置代理
 
+> 国内访问 github 很慢，需要设置代理.
+> 如果代理不正确，会有 `fatal: unable to access 'https://github.com/docker/getting-started.git/': LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443 ` 的错误.
+
+###  1.参考
+* 1.[SETTING PROXY FOR GIT ON MAC!](https://shellzero.wordpress.com/2012/05/30/setting-proxy-for-git-on-mac/)
+* 2.[SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443](https://stackoverflow.com/a/49789726/5237440)
+
+### 2.步骤
+
+```
+Step1:Open your terminal.
+
+Step2: Type the command  git config –global http.proxy [your proxy website or the ip address]
+
+         For example: git config –global http.proxy http://10.11.32.9:8888
+
+Step3: You can now check what are the settings configured in the gitconfig by executing the following command
+
+Zerocools-MacBook:~ pamusriharsha$  git config –list
+
+For example: It would be something as this
+
+user.name=applecool
+                            user.email=applecoolkmit@gmail.com
+                            http.proxy=http://10.11.32.9:8888
+
+That’s it here we go. Your proxy settings for your git is successfully completed! 😀
+```
 
 
 
