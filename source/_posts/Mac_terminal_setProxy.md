@@ -12,8 +12,35 @@ date: 2019-07-22 17:46:19
 
 ## 1.参考
 * 1.[在Mac终端下配置Proxy](https://miao1007.github.io/%E5%9C%A8mac%E7%BB%88%E7%AB%AF%E4%B8%8B%E9%85%8D%E7%BD%AEproxy/)
+* 2.[Mac 终端走 shadowsocks 代理](https://www.yfmingo.cn/2018/06/29/mac-terminal-shadowsocks/)
 
-## 2.步骤:
+## 步骤(简单)
+* 终端 执行 `vim ~/.zshrc` 打开 `.zshrc`文件.
+* 在文末添加如下代理配置:
+
+```
+  # proxy list
+  alias proxy='export all_proxy=socks5://127.0.0.1:1086'
+  alias unproxy='unset all_proxy'
+```
+
+`:wq`保存退出
+
+执行 `source ~/.zshrc`
+* 使用：
+  开启终端代理命令：proxy
+  解除终端代理命令：unproxy
+* 查看当前的ip地址：
+```
+curl cip.gs
+curl cip.sb
+
+curl ip.cn
+// 常用
+curl cip.cc
+```
+
+## 步骤(复杂):
 * 1.用 SS 来配置 Proxy
 * 2.用终端打开 `~/. bash_profile` 文件： `open -a xcode ~/. bash_profile`
 * 3.新增以下内容:

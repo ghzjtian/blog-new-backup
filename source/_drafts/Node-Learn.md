@@ -13,6 +13,7 @@ date: 2020-04-18 17:46:19
 ## 1.参考
 * 1.[Run a node.js app as a background service](https://stackoverflow.com/questions/4018154/how-do-i-run-a-node-js-app-as-a-background-service/25998406#25998406)
 * 2.[Run node.js service with systemd](https://www.axllent.org/docs/view/nodejs-service-with-systemd/)
+* 3.[Node.js debugging in VS Code](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
 
 
 ## 2.学习例子

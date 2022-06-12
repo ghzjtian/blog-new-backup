@@ -324,3 +324,7 @@ $custom-typography-config: mat-typography-config(
 @include angular-material-typography($custom-typography-config);
 ```
 
+## 资料
+> 想要查看 Angular Material 的 theme 相关的 API ，需要下载代码 https://github.com/angular/components/tree/master/src/material 去查看相关的资料.
+
+> palette 中定义的 contrast 为在这个颜色中的反差颜色.

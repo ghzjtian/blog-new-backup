@@ -28,11 +28,13 @@ date: 2021-03-01 17:46:19
 * 1.执行 `docker run -dp  <本地端口>:<docker 端口> --name <container name> <image name>/<tag name>` 命令, 如: `docker run -dp 8080:8080 --name jenkins-test jenkins/jenkins:lts-alpine`
 
 
-### 3.Container CLI Command
-* 1.Get all containers information: `docker ps -a`
-* 2.Start a container: `docker start <container-id>`
-* 3.Stop the container: `docker stop <container-id>`
-* 4.Remove container: `docker rm <container-id>`
+### 3.CLI Command
+* Get all containers information: `docker ps -a`
+* Start a container: `docker start <container-id>`
+* Stop the container: `docker stop <container-id>`
+* Remove container: `docker rm <container-id>`
+* 删除所有 Container: `docker rm -f $(docker ps -aq) `
+* 删除所有 Images: `docker rmi -f $(docker images -aq)`
 
 ### 4.[SSH into a Container](https://phase2.github.io/devtools/common-tasks/ssh-into-a-container/)
 ```
@@ -84,3 +86,10 @@ docker cp <src-path> <container>:<dest-path>
 docker cp <container>:<src-path> <local-dest-path> 
 ```
 
+## 6.问题及解决
+### 1.[`docker build -t xameeramir/cra-docker .` 后找不到 image](https://stackoverflow.com/questions/56512769/unable-to-find-docker-image-locally)
+
+* 1.解决: 把 `.` 放在前面, 如: `docker build . -t xameeramir/cra-docker`
+
+### 2.build 后在 docker desktop 上找不到 image
+* 解决: 用命令行运行 `docker images` 即可.
