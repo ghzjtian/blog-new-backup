@@ -18,6 +18,8 @@ date: 2019-07-22 17:46:19
 * 终端 执行 `vim ~/.zshrc` 打开 `.zshrc`文件.
 * 在文末添加如下代理配置:
 
+> `127.0.0.1:1086` 在 Network/Advance/Proxies/SOCKS Proxy/SOCKS Proxy server 中可以看到. 
+
 ```
   # proxy list
   alias proxy='export all_proxy=socks5://127.0.0.1:1086'
